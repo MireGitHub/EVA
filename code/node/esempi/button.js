@@ -1,45 +1,67 @@
 var five = require("johnny-five"),
-    onButton7, onButton9, onButton8, ledRed, ledWhite, ledGreen;
+    onBtnPlay, onBtnPause, onBtnStop, onBtnNext, ledRed1, ledRed2, ledWhite, ledGreen, ledYellow;
 
+const INFOBEAMER_PORT = 4444;
+const IP_TO_CONNECT = "127.0.0.1";
 
 var osc = require('node-osc');
 
   five.Board().on("ready", function() {
-  onButton8 = new five.Button(11);
-  onButton9 = new five.Button(9);
-  onButton7 = new five.Button(10);
-  ledRed = new five.Led(3);
-  ledWhite = new five.Led(6);
-  ledGreen = new five.Led(5);
-  ledRed.off();
-  ledWhite.off();
-  ledGreen.off();
+  onBtnPlay = new five.Button(13);
+  onBtnPause = new five.Button(12);
+  onBtnStop = new five.Button(11);
+  onBtnNext = new five.Button(10);
+  ledRed1 = new five.Led(6);
+  ledRed2 = new five.Led(2);
+  ledWhite = new five.Led(5);
+  ledGreen = new five.Led(4);
+  ledYellow = new five.Led(3);
 
 
-  console.log("Prima");
-		
-    onButton8.on("down", function(value){
-    ledGreen.on();
-    console.log("Click 11");
+  console.log("Before press button");
+    
+    // Start function		
+    onBtnPlay.on("down", function(value){
+    ledRed1.on();
+    console.log("Click 13");
+ 
+    var client = new osc.Client('IP_TO_CONNECT', INFOBEAMER_PORT);
 
-
-    var client = new osc.Client('156.148.132.240', 4444);
     client.send('/photo/start/1', 200, function () {
-         console.log("send");
+
+         console.log("send play");
          client.kill(); 
         });
   });
 
  
-
-  onButton9.on("down", function(value){-
+    // Pause function
+    onBtnPause.on("down", function(value){
     ledWhite.on();
-    console.log("Click 9");
+    console.log("Click 12");
 
   });
 
-    onButton7.on("down", function(value){
-    ledRed.on();
+
+    // Stop function
+    onBtnStop.on("down", function(value){
+    ledGreen.on();
+    console.log("Click 11");
+
+    var client = new osc.Client('IP_TO_CONNECT', INFOBEAMER_PORT);
+
+    client.send('/photo/start/2', 200, function () {
+
+         console.log("send stop");
+         client.kill(); 
+        });
+  });
+
+
+
+    // Next function
+    onBtnNext.on("down", function(value){
+    ledYellow.on();
     console.log("Click 10");
   });
 
