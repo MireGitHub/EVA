@@ -35,23 +35,32 @@ var osc = require('node-osc');
   else {
 	indexPot = 0;
   }
-  if(indexPot > 5  &&  indexPot < 7){
+  if(indexPot > 2  &&  indexPot < 7){
   
 	var speedMod = valuePot % 100;
 	var speed = valuePot / 100;
 	speed = (valuePot - speedMod) / 100;
-	console.log(valuePot);
-	console.log(speed);
-	console.log(indexPot);
+	//console.log(valuePot);
+	//console.log(speed);
+	//console.log(indexPot);
 
 	try{
 		var client = new osc.Client(IP_TO_CONNECT, INFOBEAMER_PORT);
 	
 	    	client.send('/photo/speed/' + speed, 200, function () {
 	
-	         console.log("send speed");
+	         //console.log("send speed");
          	client.kill(); 
 		});
+
+		
+		 var client2 = new osc.Client(IP_TO_CONNECT, INFOBEAMER_PORT);
+	
+	    	client2.send('/photo/text/' + speed, 200, function () {
+		console.log(" send text");
+         	client2.kill(); 
+		 });
+
 	}catch(e){
 		 console.log("Connection error");
 		}
@@ -117,8 +126,10 @@ var osc = require('node-osc');
 	    	client.send('/photo/start/2', 200, function () {
 	
 	         console.log("send stop");
-         	client.kill(); 
+         	 client.kill(); 
 		 });
+
+
 	}catch(e){
 		 console.log("Connection error");
 		}

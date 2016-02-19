@@ -3,6 +3,9 @@
 local COUNTDOWN = 3
 node.alias("photo")
 START=0
+local font = resource.load_font "silkscreen.ttf"
+TEXT_ON_OFF = 0
+
 gl.setup(NATIVE_WIDTH, NATIVE_HEIGHT)
 
 pictures = util.generator(function()
@@ -31,8 +34,9 @@ util.osc_mapper{
         START= tonumber(arg)
     end;
     ["speed/(.*)"] = function(arg)	
-        COUNTDOWN= tonumber(arg)
+        COUNTDOWN= 1 + tonumber(arg)
 	print(COUNTDOWN)
+	print('Ciao')
     end;
     ["accelerate/(.*)"] = function(arg)	
         COUNTDOWN= COUNTDOWN-tonumber(arg);
@@ -48,6 +52,11 @@ util.osc_mapper{
 	print(current_image)
         print(pictures(tmp))
 	
+    end;
+    ["text/(.*)"] = function(arg)
+	TEXT = arg;
+	TEXT_ON_OFF = 1;
+	print("text no render "+TEXT)
     end
 }
 
@@ -58,6 +67,10 @@ function node.render()
 	if START==2 then
 		util.draw_correct(current_image, 0,0,WIDTH,HEIGHT)
 	end;
+	if TEXT_ON_OFF == 1 then
+		font:write(10, 10, TEXT, 30, 1,1,1,1)
+		print("text "+TEXT)	
+	end
             
 end
 function _render()
