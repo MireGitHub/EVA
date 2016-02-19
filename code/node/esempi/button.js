@@ -1,5 +1,5 @@
 var five = require("johnny-five"),
-    onBtnPlay, onBtnPause, onBtnStop, onBtnNext, ledRed1, ledRed2, ledWhite, ledGreen, ledYellow;
+    potentiometer,onBtnPlay, onBtnPause, onBtnStop, onBtnNext, ledRed1, ledRed2, ledWhite, ledGreen, ledYellow;
 
 const INFOBEAMER_PORT = 4444;
 const IP_TO_CONNECT = "127.0.0.1";
@@ -7,6 +7,11 @@ const IP_TO_CONNECT = "127.0.0.1";
 var osc = require('node-osc');
 
   five.Board().on("ready", function() {
+  potentiometer = new five.Sensor({
+	pin: "A0",
+	freq: 250
+	});
+
   onBtnPlay = new five.Button(13);
   onBtnPause = new five.Button(12);
   onBtnStop = new five.Button(11);
@@ -16,6 +21,37 @@ var osc = require('node-osc');
   ledWhite = new five.Led(5);
   ledGreen = new five.Led(4);
   ledYellow = new five.Led(3);
+
+  var indexPot, valuePot;
+  indexPot = 0;
+  valuePot = 0;
+
+  // "data" get the current reading from the potentiometer
+  potentiometer.on("data", function() {
+
+  if(this.raw == valuePot) {
+	indexPot += 1;
+  }
+  else {
+	indexPot = 0;
+
+  if(indexPot > 5  &&  indexPot < 7){
+	var speedMod = valuePot % 100;
+	var speed = valuePot / 100;
+	speed = (valuePot - speedMod) / 100;
+	console.log(valuePot);
+	
+	var client = new osc.Client('IP_TO_CONNECT', INFOBEAMER_PORT);
+
+    	client.send('/photo/speed/' + speed, 200, function () {
+
+         console.log("send speed");
+         client.kill(); 
+        });
+  }
+  valuePot = this.raw;
+
+});
 
 
   console.log("Before press button");
@@ -40,6 +76,14 @@ var osc = require('node-osc');
     ledWhite.on();
     console.log("Click 12");
 
+    var client = new osc.Client('IP_TO_CONNECT', INFOBEAMER_PORT);
+
+    client.send('/photo/start/0', 200, function () {
+
+         console.log("send pause");
+         client.kill(); 
+        });
+
   });
 
 
@@ -63,6 +107,13 @@ var osc = require('node-osc');
     onBtnNext.on("down", function(value){
     ledYellow.on();
     console.log("Click 10");
+    var client = new osc.Client('IP_TO_CONNECT', INFOBEAMER_PORT);
+
+    client.send('/photo/next/1', 200, function () {
+
+         console.log("send stop");
+         client.kill(); 
+        });
   });
 
 });
