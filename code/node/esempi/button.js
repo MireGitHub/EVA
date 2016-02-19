@@ -28,26 +28,35 @@ var osc = require('node-osc');
 
   // "data" get the current reading from the potentiometer
   potentiometer.on("data", function() {
-
+  
   if(this.raw == valuePot) {
 	indexPot += 1;
   }
   else {
 	indexPot = 0;
-
+  }
   if(indexPot > 5  &&  indexPot < 7){
+  
 	var speedMod = valuePot % 100;
 	var speed = valuePot / 100;
 	speed = (valuePot - speedMod) / 100;
 	console.log(valuePot);
+	console.log(speed);
+	console.log(indexPot);
+
+	try{
+		var client = new osc.Client(IP_TO_CONNECT, INFOBEAMER_PORT);
 	
-	var client = new osc.Client('IP_TO_CONNECT', INFOBEAMER_PORT);
-
-    	client.send('/photo/speed/' + speed, 200, function () {
-
-         console.log("send speed");
-         client.kill(); 
-        });
+	    	client.send('/photo/speed/' + speed, 200, function () {
+	
+	         console.log("send speed");
+         	client.kill(); 
+		});
+	}catch(e){
+		 console.log("Connection error");
+		}
+        
+	
   }
   valuePot = this.raw;
 
@@ -60,14 +69,19 @@ var osc = require('node-osc');
     onBtnPlay.on("down", function(value){
     ledRed1.on();
     console.log("Click 13");
- 
-    var client = new osc.Client('IP_TO_CONNECT', INFOBEAMER_PORT);
 
-    client.send('/photo/start/1', 200, function () {
+ 	try {
+    		var client = new osc.Client(IP_TO_CONNECT, INFOBEAMER_PORT);
 
-         console.log("send play");
-         client.kill(); 
-        });
+    		client.send('/photo/start/1', 200, function () {
+
+         	console.log("send play");
+         	client.kill(); 
+		 });
+	}catch(e){
+		 console.log("Connection error");
+		}
+       
   });
 
  
@@ -75,14 +89,19 @@ var osc = require('node-osc');
     onBtnPause.on("down", function(value){
     ledWhite.on();
     console.log("Click 12");
+	
+	try{
+	    	var client = new osc.Client(IP_TO_CONNECT, INFOBEAMER_PORT);
+	
+	    	client.send('/photo/start/0', 200, function () {
 
-    var client = new osc.Client('IP_TO_CONNECT', INFOBEAMER_PORT);
-
-    client.send('/photo/start/0', 200, function () {
-
-         console.log("send pause");
-         client.kill(); 
-        });
+         	console.log("send pause");
+         	client.kill();
+		});
+	}catch(e){
+		 console.log("Connection error");
+		}
+        
 
   });
 
@@ -92,13 +111,18 @@ var osc = require('node-osc');
     ledGreen.on();
     console.log("Click 11");
 
-    var client = new osc.Client('IP_TO_CONNECT', INFOBEAMER_PORT);
-
-    client.send('/photo/start/2', 200, function () {
-
-         console.log("send stop");
-         client.kill(); 
-        });
+	try{
+	   	 var client = new osc.Client(IP_TO_CONNECT, INFOBEAMER_PORT);
+	
+	    	client.send('/photo/start/2', 200, function () {
+	
+	         console.log("send stop");
+         	client.kill(); 
+		 });
+	}catch(e){
+		 console.log("Connection error");
+		}
+       
   });
 
 
@@ -107,13 +131,19 @@ var osc = require('node-osc');
     onBtnNext.on("down", function(value){
     ledYellow.on();
     console.log("Click 10");
-    var client = new osc.Client('IP_TO_CONNECT', INFOBEAMER_PORT);
+	
+	try{
+    		var client = new osc.Client(IP_TO_CONNECT, INFOBEAMER_PORT);
 
-    client.send('/photo/next/1', 200, function () {
+    		client.send('/photo/next/1', 200, function () {
 
-         console.log("send stop");
-         client.kill(); 
-        });
+         	console.log("send stop");
+         	client.kill();
+		 });
+	}catch(e){
+		 console.log("Connection error");
+		}
+       
   });
 
 });
