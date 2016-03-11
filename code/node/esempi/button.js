@@ -1,5 +1,5 @@
 var five = require("johnny-five"),
-    potentiometer,onBtnPlay, onBtnPause, onBtnStop, onBtnNext, ledRed1, ledRed2, ledWhite, ledGreen, ledYellow;
+    potentiometer,onBtnPlay, onBtnPause, onBtnStop, onBtnNext,onBtnPlayVideo, ledRed1, ledRed2, ledWhite, ledGreen, ledYellow;
 
 const INFOBEAMER_PORT = 4444;
 const IP_TO_CONNECT = "127.0.0.1";
@@ -16,11 +16,16 @@ var osc = require('node-osc');
   onBtnPause = new five.Button(12);
   onBtnStop = new five.Button(11);
   onBtnNext = new five.Button(10);
+  onBtnPlayVideo = new five.Button(9);
   ledRed1 = new five.Led(6);
   ledRed2 = new five.Led(2);
   ledWhite = new five.Led(5);
   ledGreen = new five.Led(4);
   ledYellow = new five.Led(3);
+
+  // Create a new `motion` hardware instance.
+  var motion = new five.Motion(7);
+  
 
   var indexPot, valuePot;
   indexPot = 0;
@@ -85,7 +90,7 @@ var osc = require('node-osc');
     		client.send('/photo/start/1', 200, function () {
 
          	console.log("send play");
-         	client.kill(); 
+         	client.kill();
 		 });
 	}catch(e){
 		 console.log("Connection error");
@@ -155,6 +160,61 @@ var osc = require('node-osc');
 		 console.log("Connection error");
 		}
        
+  });
+
+
+
+   // Start video function		
+    onBtnPlayVideo.on("down", function(value){
+    console.log("Click 9");
+
+ 	try {
+    		var client = new osc.Client(IP_TO_CONNECT, INFOBEAMER_PORT);
+
+    		client.send('/text/0', 200, function () {
+	         	console.log("Play video");
+         		client.kill();
+		 	});
+	     }catch(e){
+		 console.log("Connection error");
+	} 
+  });
+
+
+
+   // "calibrated" occurs once, at the beginning of a session,
+	  motion.on("calibrated", function() {
+	    console.log("calibrated", Date.now());
+	  });
+
+       // "motionstart" events are fired when the "calibrated"
+      // proximal area is disrupted, generally by some form of movement
+      motion.on("motionstart", function() {
+
+	try {
+    		var client = new osc.Client(IP_TO_CONNECT, INFOBEAMER_PORT);
+
+    		client.send('/photo/start/1', 200, function () {
+
+         	console.log("Auto play");
+         	client.kill(); 
+		 });
+	}catch(e){
+		 console.log("Connection error");
+		}
+
+	ledRed2.on();
+	console.log("motionstart", Date.now());
+
+  	});
+
+
+	// "motionend" events are fired following a "motionstart" event
+  // when no movement has occurred in X ms
+  motion.on("motionend", function() {
+	    console.log("motionend", Date.now());
+	    ledRed2.off();
+	 
   });
 
 });
