@@ -5,6 +5,7 @@ node.alias("videolist")
 local playlist, video, current_video_idx
 START=1
 INFO=0
+
 util.file_watch("playlist.txt", function(content) 
     playlist = {}
     for filename in string.gmatch(content, "[^\r\n]+") do
@@ -22,16 +23,17 @@ function next_video()
     end
     if video then
         video:dispose()
-    end
+    end 
     video = util.videoplayer(playlist[current_video_idx], {loop=false,paused=true})
 end
 
 util.osc_mapper{
-    -- start==0 non ancora avviato
+    -- start==0 non ancora avviato pausa
     -- start==1 avviato
-    -- start==2 pausa	
+    -- start==2 stop	
     ["start/(.*)"] = function(arg)	
         START=tonumber(arg)
+	print(START)
     end;
     ["speed/(.*)"] = function(arg)	
         COUNTDOWN= tonumber(arg)
@@ -61,14 +63,17 @@ function node.render()
 	if START==2 then
 		video:dispose()
 	end;
+	if START==0 then
+	    video:draw(0, 0, WIDTH, HEIGHT)	
+	    video:start()
+            -- util.draw_correct(video, 0, 0, WIDTH, HEIGHT)
+	    -- print("video avviato")  
+        end;
             
 end
 function _render()
     if not video or not video:next() then
         next_video()
-    end
-    util.draw_correct(video, 0, 0, WIDTH, HEIGHT)
-    if INFO==1 then
-          resource.render_child("simple-text-from-file"):draw(0, 0, 1920, 120)
-    end
+    end;
+        util.draw_correct(video, 0, 0, WIDTH, HEIGHT);
 end
