@@ -1,5 +1,5 @@
 var five = require("johnny-five"),
-    potentiometer,onBtnPlay, onBtnPause, onBtnStop, onBtnNext,onBtnPlayVideo, ledRed1, ledRed2, ledWhite, ledGreen, ledYellow;
+    potentiometer,toggleSwitch, motion, photoresistor,onBtnPlay, onBtnPause, onBtnStop, onBtnNext,onBtnPlayVideo, ledRed1, ledRed2, ledWhite, ledGreen, ledYellow;
 
 const INFOBEAMER_PORT = 4444;
 const IP_TO_CONNECT = "127.0.0.1";
@@ -11,22 +11,27 @@ var osc = require('node-osc');
 	pin: "A0",
 	freq: 250
 	});
+  
+  // Create a new `photoresistor` hardware instance.
+  photoresistor = new five.Sensor({
+    pin: "A2",
+    freq: 250
+  });
 
   onBtnPlay = new five.Button(13);
   onBtnPause = new five.Button(12);
   onBtnStop = new five.Button(11);
   onBtnNext = new five.Button(10);
   onBtnPlayVideo = new five.Button(9);
+  toggleSwitch = new five.Switch(8);
+  motion = new five.Motion(7);
   ledRed1 = new five.Led(6);
   ledRed2 = new five.Led(2);
   ledWhite = new five.Led(5);
   ledGreen = new five.Led(4);
   ledYellow = new five.Led(3);
 
-  // Create a new `motion` hardware instance.
-  var motion = new five.Motion(7);
   
-
   var indexPot, valuePot;
   indexPot = 0;
   valuePot = 0;
@@ -76,6 +81,25 @@ var osc = require('node-osc');
 
 });
 
+
+  // "data" get the current reading from the photoresistor
+  photoresistor.on("data", function() {
+
+    if(this.value > 800) {    
+	console.log(this.value);
+	try {
+    		var client = new osc.Client(IP_TO_CONNECT, INFOBEAMER_PORT);
+
+    		client.send('/photo/start/1', 200, function () {
+
+         	console.log("send play");
+         	client.kill();
+		 });
+	}catch(e){
+		 console.log("Connection error");
+		}
+     }	
+  });
 
   console.log("Before press button");
     
@@ -181,8 +205,11 @@ var osc = require('node-osc');
   });
 
 
+    // "open" the switch is opened
+    toggleSwitch.on("open", function() {
+    console.log("open");
 
-   // "calibrated" occurs once, at the beginning of a session,
+    // "calibrated" occurs once, at the beginning of a session,
 	  motion.on("calibrated", function() {
 	    console.log("calibrated", Date.now());
 	  });
@@ -208,13 +235,20 @@ var osc = require('node-osc');
 
   	});
 
+   });
 
-	// "motionend" events are fired following a "motionstart" event
+
+   // "closed" the switch is closed
+  toggleSwitch.on("close", function() {
+    console.log("closed");
+
+  // "motionend" events are fired following a "motionstart" event
   // when no movement has occurred in X ms
   motion.on("motionend", function() {
 	    console.log("motionend", Date.now());
 	    ledRed2.off();
-	 
+	 }); 
   });
+
 
 });
