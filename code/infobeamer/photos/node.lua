@@ -2,9 +2,12 @@
 
 local COUNTDOWN = 3
 node.alias("photo")
-START=0
+START = 0
 local font = resource.load_font "silkscreen.ttf"
 TEXT_ON_OFF = 0
+TEXTINFO_ON_OFF = 0
+VIDEO_ON_OFF = 0
+OPACITY = 1
 
 gl.setup(NATIVE_WIDTH, NATIVE_HEIGHT)
 
@@ -36,7 +39,7 @@ util.osc_mapper{
     ["speed/(.*)"] = function(arg)	
         COUNTDOWN= 1 + tonumber(arg)
 	print(COUNTDOWN)
-	print('Ciao')
+	print('Speed')
     end;
     ["accelerate/(.*)"] = function(arg)	
         COUNTDOWN= COUNTDOWN-tonumber(arg);
@@ -56,9 +59,38 @@ util.osc_mapper{
     ["text/(.*)"] = function(arg)
 	TEXT = arg;
 	TEXT_ON_OFF = 1;
-	print("text no render "+TEXT)
+	-- print("text no render "+TEXT)
+    end;
+
+   ["text_info/(.*)"] = function(arg)
+	-- TEXT = arg;
+	TEXTINFO_ON_OFF = tonumber(arg);
+	-- print("text no render "+TEXT)
+    end;
+   ["opacity/(.*)"] = function(arg)
+	OPACITY = tonumber(arg);
+	print("Opacity "+ OPACITY)
+    end;
+   ["video/(.*)"] = function(arg)
+	VIDEO_ON_OFF = tonumber(arg);
     end
 }
+
+
+util.auto_loader(_G)
+
+function feeder()
+    return {"A Text", "Another Text"}
+end
+
+text_info = util.running_text{
+    font = silkscreen;
+    size = 260;
+    speed = 240;
+    color = {1,1,1,1};
+    generator = util.generator(feeder)
+}
+
 
 function node.render()
 	if START==1 then
@@ -69,17 +101,25 @@ function node.render()
 	end;
 	if TEXT_ON_OFF == 1 then
 		font:write(10, 10, TEXT, 30, 1,1,1,1)
-		print("text "+TEXT)	
-	end
-            
+		-- print("text "+TEXT)	
+	end;
+	if TEXTINFO_ON_OFF == 1 then
+		text_info:draw(HEIGHT-260)
+	end;
+	if VIDEO_ON_OFF == 1 then
+		resource.render_child("videolist"):draw(0, 0, WIDTH,HEIGHT, OPACITY) 
+	end;         
 end
+
+
+
 function _render()
     gl.clear(0,0,0,1)
-    gl.perspective(60,
-       WIDTH/2, HEIGHT/2, -WIDTH/1.6,
-       -- WIDTH/2, HEIGHT/2, -WIDTH/1.4,
-       WIDTH/2, HEIGHT/2, 0
-    )
+    -- gl.perspective(60,
+    --    WIDTH/2, HEIGHT/2, -WIDTH/1.6,
+    --    -- WIDTH/2, HEIGHT/2, -WIDTH/1.4,
+    --    WIDTH/2, HEIGHT/2, 0
+    -- )
     -- gl.perspective(60,
     --    WIDTH/2+math.cos(sys.now()) * 100, HEIGHT/2+math.sin(sys.now()) * 100, -WIDTH/1.9,
     --    -- WIDTH/2, HEIGHT/2, -WIDTH/1.4,
