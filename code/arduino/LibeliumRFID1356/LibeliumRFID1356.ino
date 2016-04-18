@@ -52,7 +52,7 @@ void loop()
   //Get the UID Identifier
   init(_UID, ATQ);
   Serial.print("\n");
-  Serial.print( "The UID : ");
+  Serial.print( "The_UID: ");
   print(_UID , 4);
   /////////////////////////////////////////////////////////////
   //Auntenticate a block with his keyAccess
@@ -223,9 +223,9 @@ void print(uint8_t * _data, uint8_t length)
 {
   for (int i = 0; i < length ; i++){
     Serial.print(_data[i], HEX);
-    Serial.print(" ");
+    //Serial.print(" ");
   }
-  Serial.print("\n");
+  Serial.print("**");Serial.print("\n");Serial.print("\n");
 }
 //**********************************************************************
 //!This command is used to set internal parameters of the PN532,
