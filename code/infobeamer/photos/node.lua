@@ -5,11 +5,14 @@ node.alias("photo")
 START = 0
 local font = resource.load_font "silkscreen.ttf"
 TEXT_ON_OFF = 0
+TEXT_FILE = 0
 TEXTINFO_ON_OFF = 0
 VIDEO_ON_OFF = 0
 OPACITY = 1
-
+playlist_id=0
+tmp_pictures={}
 gl.setup(NATIVE_WIDTH, NATIVE_HEIGHT)
+
 
 pictures = util.generator(function()
     local out = {}
@@ -20,6 +23,8 @@ pictures = util.generator(function()
     end
     return out
 end)
+
+-- print("pictures ",pictures)
 node.event("content_remove", function(filename)
     pictures:remove(filename)
 end)
@@ -33,8 +38,14 @@ local next_image_time = sys.now() + COUNTDOWN
 
 
 util.osc_mapper{
-    ["start/(.*)"] = function(arg)	
+    ["start/(.*)"] = function(arg)
+	print('Play' , arg)	
         START= tonumber(arg)
+	if START==0 then
+	  TEXT_FILE = 0
+	  playlist_id =0
+	end;
+        print(START)
     end;
     ["speed/(.*)"] = function(arg)	
         COUNTDOWN= 1 + tonumber(arg)
@@ -61,7 +72,11 @@ util.osc_mapper{
 	TEXT_ON_OFF = 1;
 	-- print("text no render "+TEXT)
     end;
-
+   ["text_file/(.*)"] = function(arg)
+       print("Read from file ")
+       TEXT_FILE = tonumber(arg);
+	
+    end;
    ["text_info/(.*)"] = function(arg)
 	-- TEXT = arg;
 	TEXTINFO_ON_OFF = tonumber(arg);
@@ -73,7 +88,36 @@ util.osc_mapper{
     end;
    ["video/(.*)"] = function(arg)
 	VIDEO_ON_OFF = tonumber(arg);
-    end
+    end;
+    ["playlist/(.*)"] = function(arg)
+	print("Playlist")
+	print(arg)
+	playlist_id=arg
+	tmp_pictures={}
+
+		util.file_watch(arg..".txt", function(content) 
+
+	    	for filename in string.gmatch(content, "[^\r\n]+") do
+	        	tmp_pictures[#tmp_pictures+1] = filename
+	    	end
+		end)
+
+		local new_pictures = util.generator(function()
+	    	local out = {}
+		
+	   	for i,name in pairs(tmp_pictures) do
+	        	out[#out + 1] = name
+	   	end
+	    	return out
+  		end)
+        print("Changed Playlist")
+	local tmp= new_pictures.next()
+        current_image = resource.load_image(tmp)
+	pictures=new_pictures
+
+    end;
+
+    
 }
 
 
@@ -93,6 +137,7 @@ text_info = util.running_text{
 
 
 function node.render()
+	
 	if START==1 then
 		_render()
 	end;
@@ -108,13 +153,31 @@ function node.render()
 	end;
 	if VIDEO_ON_OFF == 1 then
 		resource.render_child("videolist"):draw(0, 0, WIDTH,HEIGHT, OPACITY) 
-	end;         
+	end;  
+	if TEXT_FILE == 1 then
+	    -- folder = tostring(playlist_id)
+	    -- folder_id = split(folder, ".")		
+            resource.render_child("text-file-"..tostring(playlist_id)):draw(0, 0, WIDTH,HEIGHT, OPACITY) 
+	end;	       
 end
 
+-- function split(str, sep)
+--  local result = {}
+-- local regex = ("([.txt]+)"):format(sep)
+-- for each in str:gmatch(regex) do
+-- table.insert(result, each)
+-- end
+-- return result
+-- end
 
+-- local lines = split(content, ".")
+--for _,line in ipairs(lines) do
+	-- print(lines)
+-- end
 
 function _render()
     gl.clear(0,0,0,1)
+    
     -- gl.perspective(60,
     --    WIDTH/2, HEIGHT/2, -WIDTH/1.6,
     --    -- WIDTH/2, HEIGHT/2, -WIDTH/1.4,
@@ -128,12 +191,13 @@ function _render()
     local time_to_next = next_image_time - sys.now()
     if time_to_next < 0 then
         if next_image then
+	    current_image:dispose()
             current_image = next_image
             next_image = nil
             next_image_time = sys.now() + COUNTDOWN
             util.draw_correct(current_image, 0,0,WIDTH,HEIGHT)
-            in_effect = math.random() * 3
-            out_effect = math.random() * 3
+            -- in_effect = math.random() * 3
+            -- out_effect = math.random() * 3
         else
             next_image_time = sys.now() + COUNTDOWN
         end
@@ -143,42 +207,6 @@ function _render()
             next_image = resource.load_image(pictures.next())
         end
         local xoff = (1 - time_to_next) * WIDTH
-
-        gl.pushMatrix()
-            if out_effect < 1 then
-                gl.rotate(200 * (1-time_to_next), 0,1,0)
-                util.draw_correct(current_image, 0 + xoff, 0, WIDTH + xoff, HEIGHT, time_to_next)
-            elseif out_effect < 2 then
-                gl.rotate(60 * (1-time_to_next), 0,0,1)
-                util.draw_correct(current_image, 0 + xoff, 0, WIDTH + xoff, HEIGHT, time_to_next)
-            else
-                gl.rotate(300 * (1-time_to_next), -1,0.2,0.4)
-                util.draw_correct(current_image, 0 + xoff, 0, WIDTH + xoff, HEIGHT, time_to_next)
-            end
-        gl.popMatrix()
-
-        gl.pushMatrix()
-            xoff = time_to_next * -WIDTH
-            if in_effect < 1 then
-                gl.rotate(100 * (time_to_next), 1,-1,0)
-                util.draw_correct(next_image, 0 + xoff, 0,WIDTH + xoff, HEIGHT, 1-time_to_next)
-            elseif in_effect < 2 then 
-                gl.rotate(100 * (time_to_next), 0,0,-1)
-                util.draw_correct(next_image, 0 + xoff, 0,WIDTH + xoff, HEIGHT, 1-time_to_next)
-            else
-                local half_width = WIDTH/2
-                local half_height = HEIGHT/2
-                local percent = 1 - time_to_next
-                gl.translate(half_width, half_height)
-                gl.rotate(100 * time_to_next, 0,0,-1)
-                gl.translate(-half_width, -half_height)
-                util.draw_correct(next_image,
-                    half_width - half_width*percent, half_height - half_height*percent, 
-                    half_width + half_width*percent, half_height + half_height*percent, 
-                    1-time_to_next
-                )
-            end
-        gl.popMatrix()
     else
         util.draw_correct(current_image, 0,0,WIDTH,HEIGHT)
     end
