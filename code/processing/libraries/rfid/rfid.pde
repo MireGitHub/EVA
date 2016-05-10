@@ -13,11 +13,14 @@ NetAddress myRemoteLocationInfoBeamer;
 String last_send="------------";
 PFont f; 
 Serial port;
-
  
 String buff = "";
 String uid="";
 
+int wait = 3000;
+int m;
+int TEXT_ON_OFF = 0;
+int START_ON_OFF = 0;
 
 
 void setup(){
@@ -30,7 +33,7 @@ void setup(){
  myRemoteLocation = new NetAddress("156.148.72.120",7700);
  myRemoteLocationArena = new NetAddress("156.148.72.120",7000);
  myRemoteLocationInfoBeamer = new NetAddress("156.148.33.113",5555);
-
+ m = millis();
 }
  
 
@@ -93,8 +96,26 @@ void serialEvent(int serial) {
        }
      }
      if(uid.trim().equals("845B82CB")){
-        
-       if( !uid.equals(last_send) ){
+       if(millis()-m >= wait){
+                m=millis();
+                if(START_ON_OFF == 0){
+                  OscMessage myMsg = new OscMessage("/photo/start/1");
+                  oscP5.send(myMsg, myRemoteLocationInfoBeamer);
+                  START_ON_OFF = 1;
+                  println("TStart_ON");
+                  println(myMsg);
+                }
+                else{
+                    OscMessage myMessage = new OscMessage("/photo/start/2");
+                    //myMessage.add(1);
+                    oscP5.send(myMessage, myRemoteLocationInfoBeamer);
+                    println("send start 2: "+uid);
+                    println(myMessage);
+                    START_ON_OFF = 0;
+                }
+          }
+       
+       /*if( !uid.equals(last_send) ){
          
         OscMessage myMessage = new OscMessage("/photo/start/"+1);
          println(myMessage);
@@ -103,8 +124,9 @@ void serialEvent(int serial) {
         println("send play"+uid);
         println(myMessage);
         last_send=uid;
-       }
+       } */
      }
+     
      if(uid.trim().equals("94B082CB")){
         
        if( !uid.equals(last_send) ){
@@ -116,7 +138,7 @@ void serialEvent(int serial) {
         last_send=uid;
        }
      }
-          if(uid.trim().equals("24E97BCB")){
+     if(uid.trim().equals("24E97BCB")){
         
        //if( !uid.equals(last_send) ){
         OscMessage myMessage = new OscMessage("/photo/next/"+1);
@@ -126,6 +148,34 @@ void serialEvent(int serial) {
         println(myMessage);
         last_send=uid;
        //}
+     }
+     
+      if(uid.trim().equals("745F82CB")){
+        
+        
+        //println("read 745F82CB");
+        
+        //println("m "+m);
+        //println("m1 "+m1);
+        //println("Now: ",now);
+          if(millis()-m >= wait){
+                m=millis();
+                if(TEXT_ON_OFF == 0){
+                  OscMessage myMsg = new OscMessage("/photo/text_info/1");
+                  oscP5.send(myMsg, myRemoteLocationInfoBeamer);
+                  TEXT_ON_OFF = 1;
+                  println("Text_ON");
+                  println(myMsg);
+                }
+                else{
+                    OscMessage myMessage = new OscMessage("/photo/text_info/0");
+                    //myMessage.add(1);
+                    oscP5.send(myMessage, myRemoteLocationInfoBeamer);
+                    println("send text info OFF: "+uid);
+                    println(myMessage);
+                    TEXT_ON_OFF = 0;
+                }
+          }
      }
    }
 
