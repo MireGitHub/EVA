@@ -24,7 +24,7 @@ function next_video()
     if video then
         video:dispose()
     end 
-    video = util.videoplayer(playlist[current_video_idx], {loop=false,paused=false})
+    video = util.videoplayer(playlist[current_video_idx], {loop=false,paused=false,audio=true})
 end
 
 util.osc_mapper{
