@@ -2,8 +2,9 @@
 
 gl.setup(NATIVE_WIDTH, NATIVE_HEIGHT)
 node.alias("videolist")
-local playlist, video, current_video_idx
-START=1
+local playlist, video, current_video_idx 
+_audio=true
+START=11
 INFO=0
 
 util.file_watch("playlist.txt", function(content) 
@@ -27,13 +28,20 @@ function next_video()
     video = util.videoplayer(playlist[current_video_idx], {loop=false,paused=false,audio=true})
 end
 
+function prova(vari)
+	print("prova chiamata dal padre")
+	START=1
+	return "retrurn"
+end
+
 util.osc_mapper{
     -- start==0 non ancora avviato pausa
     -- start==1 avviato
     -- start==2 stop	
-    ["start/(.*)"] = function(arg)	
+    ["vds/(.*)"] = function(arg)	
         START=tonumber(arg)
 	print(START)
+	print("mapper")
     end;
     ["speed/(.*)"] = function(arg)	
         COUNTDOWN= tonumber(arg)
@@ -57,15 +65,20 @@ util.osc_mapper{
 }
 
 function node.render()
+
 	if START==1 then
 		_render()
 	end;
 	if START==2 then
+		print("start 2")
 		video:dispose()
+		video=nil
+		-- START=3
+		-- video = util.videoplayer(playlist[current_video_idx], {loop=false,paused=true,audio=false})
 	end;
 	if START==0 then
-	    video:draw(0, 0, WIDTH, HEIGHT)	
-	    video:start()
+	    -- video:draw(0, 0, WIDTH, HEIGHT)	
+	    -- video:start()
             -- util.draw_correct(video, 0, 0, WIDTH, HEIGHT)
 	    -- print("video avviato")  
         end;
@@ -73,7 +86,8 @@ function node.render()
 end
 function _render()
     if not video or not video:next() then
+    	print("video avviato")  
         next_video()
     end;
-        util.draw_correct(video, 0, 0, WIDTH, HEIGHT);
+        util.draw_correct(video, 0, 0, WIDTH, HEIGHT)
 end

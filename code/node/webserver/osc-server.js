@@ -3,6 +3,7 @@ var oscServer=new osc.Server(5555,'0.0.0.0');
 
 const INFOBEAMER_PORT = 4444;
 const IP_TO_CONNECT = "127.0.0.1";
+console.log("ready...");
 oscServer.on("message",function(msg,info){
 	console.log(msg);console.log(msg[0]);
 	try {

@@ -90,8 +90,7 @@ util.osc_mapper{
 	VIDEO_ON_OFF = tonumber(arg);
     end;
     ["playlist/(.*)"] = function(arg)
-	print("Playlist")
-	print(arg)
+    	START=1
 	playlist_id=arg
 	tmp_pictures={}
 
@@ -110,7 +109,6 @@ util.osc_mapper{
 	   	end
 	    	return out
   		end)
-        print("Changed Playlist")
 	local tmp= new_pictures.next()
         current_image = resource.load_image(tmp)
 	pictures=new_pictures
@@ -153,7 +151,8 @@ function node.render()
 	end;
 	if VIDEO_ON_OFF == 1 then
 		resource.render_child("videolist"):draw(0, 0, WIDTH,HEIGHT, OPACITY) 
-	end;  
+	
+	end;	  
 	if TEXT_FILE == 1 then
 	    -- folder = tostring(playlist_id)
 	    -- folder_id = split(folder, ".")		
