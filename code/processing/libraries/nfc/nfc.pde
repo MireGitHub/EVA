@@ -66,7 +66,7 @@ void serialEvent(int serial) {
        case("B4FF8BCB"):     //PLAYLIST 2
              if(millis() - etaRead >= wait){
                 etaRead = millis();
-                sendOscMessage("/photo/playlist/2.txt", uid);
+                sendOscMessage("/photo/playlist/2", uid);
              }
              break;
 
@@ -90,11 +90,11 @@ void serialEvent(int serial) {
              etaRead = millis();
             
              if( TEXT_ON_OFF == 0) {
-                  sendOscMessage(oscMapper+"text_info/1", uid);
+                  sendOscMessage(oscMapper+"text_file/1", uid);
                   TEXT_ON_OFF = 1;
                }
                else {
-                  sendOscMessage(oscMapper+"text_info/0", uid);
+                  sendOscMessage(oscMapper+"text_file/0", uid);
                   TEXT_ON_OFF = 0;
                }
              }
@@ -108,12 +108,13 @@ void serialEvent(int serial) {
                  START_ON_OFF = 0;
                  if(TEXT_ON_OFF == 1){
                    TEXT_ON_OFF = 0;
-                   sendOscMessage(oscMapper+"text_info/0", uid);
+                   sendOscMessage(oscMapper+"text_file/0", uid);
                  }
                  if(VIDEO_ON_OFF == 1){
                    VIDEO_ON_OFF = 0;
-                   sendOscMessage(oscMapper+"video/2", uid);
-                 }
+                    sendOscMessage(oscMapper+"video/2", uid);
+                    sendOscMessage("/videolist/vds/2", uid);
+                 }    
               }
              break;
              
