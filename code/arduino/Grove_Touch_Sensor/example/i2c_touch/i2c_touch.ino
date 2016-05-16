@@ -7,7 +7,7 @@ Released into the public domain.*/
 
 #include <Wire.h> // include I2C library
 #include <i2c_touch_sensor.h>
-#include <MPR121.h>
+#include <mpr121.h>
 // include our Grove I2C touch sensor library
 // initialize the Grove I2C touch sensor
 // IMPORTANT: in this case, INT pin was connected to pin7 of the Arduino 
@@ -19,7 +19,7 @@ long interval = 100;
 void setup() 
   {    
     Serial.begin(9600); // for debugging   
-    Serial.print("begin to init");  
+    //Serial.print("begin to init");  
     Wire.begin(); // needed by the GroveMultiTouch lib     
     touchsensor.initialize(); // initialize the feelers     // initialize the containers     
     //for(int i=0; i<=3; i++) 
@@ -41,9 +41,10 @@ void loop()
  {
  if (touchsensor.touched&(1<<i))
  	{
- 	Serial.print("pin ");
+ 	//Serial.print("pin ");
         Serial.print(i);
-        Serial.println(" was  touched");
+        Serial.print("\n");
+        //Serial.println(" was  touched");
          }
  }
 }  

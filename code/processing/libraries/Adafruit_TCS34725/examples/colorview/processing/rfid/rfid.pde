@@ -24,12 +24,12 @@ void setup(){
   //wRed=wGreen=wBlue=0;
  size(200,200);
  println(Serial.list());
- port = new Serial(this, "/dev/cu.usbmodemFA141", 115200); //remember to replace COM20 with the appropriate serial port on your computer
+ port = new Serial(this, "/dev/ttyACM0", 115200); //remember to replace COM20 with the appropriate serial port on your computer
  f = createFont("Arial",16,true);
  oscP5 = new OscP5(this,12000);
  myRemoteLocation = new NetAddress("156.148.72.120",7700);
  myRemoteLocationArena = new NetAddress("156.148.72.120",7000);
- myRemoteLocationInfoBeamer = new NetAddress("156.148.33.113",4444);
+ myRemoteLocationInfoBeamer = new NetAddress("156.148.33.113",5555);
 
 }
  
@@ -67,7 +67,7 @@ void serialEvent(int serial) {
      if(uid.trim().equals("A76CD594")){
         
        if( !uid.equals(last_send) ){
-        OscMessage myMessage = new OscMessage("/photo/playlist/2.txt");
+        OscMessage myMessage = new OscMessage("/photo/video/1");
         //myMessage.add("2.txt"); 
         oscP5.send(myMessage, myRemoteLocationInfoBeamer);
         println("send "+uid);
@@ -87,6 +87,51 @@ void serialEvent(int serial) {
         
        if( !uid.equals(last_send) ){
         OscMessage myMessage = new OscMessage("/photo/playlist/4.txt");
+        oscP5.send(myMessage, myRemoteLocationInfoBeamer);
+        println("send "+uid);
+        last_send=uid;
+       }
+     }
+     if(uid.trim().equals("845B82CB")){
+        
+       if( !uid.equals(last_send) ){
+        OscMessage myMessage = new OscMessage("/photo/start/1");
+        oscP5.send(myMessage, myRemoteLocationInfoBeamer);
+        println("send "+uid);
+        last_send=uid;
+       }
+     }
+     if(uid.trim().equals("B4F382CB")){
+        
+       if( !uid.equals(last_send) ){
+        OscMessage myMessage = new OscMessage("/photo/start/0");
+        oscP5.send(myMessage, myRemoteLocationInfoBeamer);
+        println("send "+uid);
+        last_send=uid;
+       }
+     }
+     if(uid.trim().equals("94B082CB")){
+        
+       if( !uid.equals(last_send) ){
+        OscMessage myMessage = new OscMessage("/photo/start/2");
+        oscP5.send(myMessage, myRemoteLocationInfoBeamer);
+        println("send "+uid);
+        last_send=uid;
+       }
+     }
+     if(uid.trim().equals("24E97BCB")){
+        
+       if( !uid.equals(last_send) ){
+        OscMessage myMessage = new OscMessage("/photo/next/1");
+        oscP5.send(myMessage, myRemoteLocationInfoBeamer);
+        println("send "+uid);
+        last_send=uid;
+       }
+     }
+     if(uid.trim().equals("745F82CB")){
+        
+       if( !uid.equals(last_send) ){
+        OscMessage myMessage = new OscMessage("/photo/text_file/1");
         oscP5.send(myMessage, myRemoteLocationInfoBeamer);
         println("send "+uid);
         last_send=uid;
