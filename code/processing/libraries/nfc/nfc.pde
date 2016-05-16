@@ -25,12 +25,12 @@ int VIDEO_ON_OFF = 0;
 void setup(){
   
  size(200,200);
- port = new Serial(this, "dev/ttyACM0", 115200); //remember to replace COM20 with the appropriate serial port on your computer
+ port = new Serial(this, "/dev/ttyACM0", 115200); //remember to replace COM20 with the appropriate serial port on your computer
  f = createFont("Arial",16,true);
  oscP5 = new OscP5(this,12000);
  myRemoteLocation = new NetAddress("156.148.72.120",7700);
  myRemoteLocationArena = new NetAddress("156.148.72.120",7000);
- myRemoteLocationInfoBeamer = new NetAddress("156.148.33.113",5555);
+ myRemoteLocationInfoBeamer = new NetAddress("156.148.33.166",5555);
  etaRead = millis(); //when the tag is detected
 }
 
@@ -110,6 +110,10 @@ void serialEvent(int serial) {
                    TEXT_ON_OFF = 0;
                    sendOscMessage(oscMapper+"text_info/0", uid);
                  }
+                 if(VIDEO_ON_OFF == 1){
+                   VIDEO_ON_OFF = 0;
+                   sendOscMessage(oscMapper+"video/2", uid);
+                 }
               }
              break;
              
@@ -124,12 +128,14 @@ void serialEvent(int serial) {
              if( millis() - etaRead >= wait ){
              etaRead = millis();
             
-             if( START_ON_OFF == 0) {
+             if( VIDEO_ON_OFF == 0) {
                 sendOscMessage(oscMapper+"video/1", uid);
+                sendOscMessage("/videolist/vds/1", uid);
                 VIDEO_ON_OFF = 1;
                }
              else {
-                sendOscMessage(oscMapper+"video/0", uid);
+                //sendOscMessage(oscMapper+"video/2", uid);
+                sendOscMessage("/videolist/vds/2", uid);
                 VIDEO_ON_OFF = 0;
                }
              }
