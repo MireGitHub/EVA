@@ -11,11 +11,12 @@ NetAddress myRemoteLocationInfoBeamer;
 String last_send="------------";
 PFont f;
 Serial port;
-
+int ON = 1, OFF = 0;
 
 String buff = "";
 String uid=""; //nfc tag identifier
 String oscMapper = "/photo/";
+String playlistMapper = oscMapper+"playlist/";
 int etaRead;
 int wait = 2000;    //waiting time before the next UID read
 int START_ON_OFF = 0;
@@ -30,7 +31,7 @@ void setup(){
  oscP5 = new OscP5(this,12000);
  myRemoteLocation = new NetAddress("156.148.72.120",7700);
  myRemoteLocationArena = new NetAddress("156.148.72.120",7000);
- myRemoteLocationInfoBeamer = new NetAddress("156.148.33.166",5555);
+ myRemoteLocationInfoBeamer = new NetAddress("192.168.1.74",5555);
  etaRead = millis(); //when the tag is detected
 }
 
@@ -60,27 +61,63 @@ void serialEvent(int serial) {
      uid=split(uid,"**")[0];
      //println("uid "+uid);
      uid=uid.trim();
-
+     
      switch(uid){
 
+       case("A408CCB"):     //PLAYLIST 1
+             if(millis() - etaRead >= wait){
+                etaRead = millis();
+                sendOscMessage(playlistMapper+"1", uid);
+             }
+             break;
+             
        case("B4FF8BCB"):     //PLAYLIST 2
              if(millis() - etaRead >= wait){
                 etaRead = millis();
-                sendOscMessage("/photo/playlist/2", uid);
+                sendOscMessage(playlistMapper+"2", uid);
              }
              break;
+             
+      case("C4EE6B6E"):     //PLAYLIST 3
+           if(millis() - etaRead >= wait){
+              etaRead = millis();
+              sendOscMessage(playlistMapper+"3", uid);
+           }
+           break;  
+           
+      case("A48D7BCB"):     //PLAYLIST 4
+         if(millis() - etaRead >= wait){
+            etaRead = millis();
+            sendOscMessage(playlistMapper+"4", uid);
+         }
+         break;
+         
+      case("84FF8BCB"):     //PLAYLIST 5
+         if(millis() - etaRead >= wait){
+            etaRead = millis();
+            sendOscMessage(playlistMapper+"5", uid);
+         }
+         break;
+         
+       case("94AE6B6E"):     //PLAYLIST 6
+         if(millis() - etaRead >= wait){
+            etaRead = millis();
+            sendOscMessage(playlistMapper+"6", uid);
+         }
+         break;
 
         case("845B82CB"):       //PLAY and PAUSE
              if( millis() - etaRead >= wait ){
              etaRead = millis();
             
-             if( START_ON_OFF == 0) {
+             if( START_ON_OFF == OFF) {
+                //sendOscMessage(playlistMapper+"0", uid);
                 sendOscMessage(oscMapper+"start/1", uid);
-                START_ON_OFF = 1;
+                START_ON_OFF = ON;
                }
              else {
                 sendOscMessage(oscMapper+"start/2", uid);
-                START_ON_OFF = 0;
+                START_ON_OFF = OFF;
                }
              }
              break;
@@ -89,13 +126,13 @@ void serialEvent(int serial) {
              if( millis() - etaRead >= wait ){
              etaRead = millis();
             
-             if( TEXT_ON_OFF == 0) {
+             if( TEXT_ON_OFF == OFF) {
                   sendOscMessage(oscMapper+"text_file/1", uid);
                   TEXT_ON_OFF = 1;
                }
                else {
                   sendOscMessage(oscMapper+"text_file/0", uid);
-                  TEXT_ON_OFF = 0;
+                  TEXT_ON_OFF = OFF;
                }
              }
              break;
@@ -105,14 +142,14 @@ void serialEvent(int serial) {
                  etaRead = millis();
                  sendOscMessage(oscMapper+"start/0", uid);
                  
-                 START_ON_OFF = 0;
-                 if(TEXT_ON_OFF == 1){
-                   TEXT_ON_OFF = 0;
+                 START_ON_OFF = OFF;
+                 if(TEXT_ON_OFF == ON){
+                   TEXT_ON_OFF = OFF;
                    sendOscMessage(oscMapper+"text_file/0", uid);
                  }
-                 if(VIDEO_ON_OFF == 1){
-                   VIDEO_ON_OFF = 0;
-                    sendOscMessage(oscMapper+"video/2", uid);
+                 if(VIDEO_ON_OFF == ON){
+                   VIDEO_ON_OFF = OFF;
+                    //sendOscMessage(oscMapper+"video/2", uid);
                     sendOscMessage("/videolist/vds/2", uid);
                  }    
               }
@@ -129,15 +166,15 @@ void serialEvent(int serial) {
              if( millis() - etaRead >= wait ){
              etaRead = millis();
             
-             if( VIDEO_ON_OFF == 0) {
+             if( VIDEO_ON_OFF == OFF) {
                 sendOscMessage(oscMapper+"video/1", uid);
                 sendOscMessage("/videolist/vds/1", uid);
-                VIDEO_ON_OFF = 1;
+                VIDEO_ON_OFF = ON;
                }
              else {
                 //sendOscMessage(oscMapper+"video/2", uid);
                 sendOscMessage("/videolist/vds/2", uid);
-                VIDEO_ON_OFF = 0;
+                VIDEO_ON_OFF = OFF;
                }
              }
              break;      
@@ -145,75 +182,13 @@ void serialEvent(int serial) {
               println("Waiting to read...");   // don't match the switch parameter
               break;
      }
-     
-     
-     /*if(uid.trim().equals("A76CD594")){
 
-       if( !uid.equals(last_send) ){
-        OscMessage myMessage = new OscMessage("/photo/playlist/2.txt");
-        //myMessage.add("2.txt");
-        oscP5.send(myMessage, myRemoteLocationInfoBeamer);
-        //println("send "+uid);
-        last_send=uid;
-       }
-     }
-
-     if(uid.trim().equals("24E97BCB")){
-
-       if( !uid.equals(last_send) ){
-        OscMessage myMessage = new OscMessage("/photo/playlist/3.txt");
-        oscP5.send(myMessage, myRemoteLocationInfoBeamer);
-        println("send "+uid);
-        last_send=uid;
-       }
-     }
-     if(uid.trim().equals("A48D7BCB")){
-
-       if( !uid.equals(last_send) ){
-        OscMessage myMessage = new OscMessage("/photo/playlist/4.txt");
-        oscP5.send(myMessage, myRemoteLocationInfoBeamer);
-        println("send "+uid);
-        last_send=uid;
-       }
-     }
-     if(uid.trim().equals("845B82CB")){
-
-       if( !uid.equals(last_send) ){
-
-        OscMessage myMessage = new OscMessage("/photo/start/"+1);
-         println(myMessage);
-        //myMessage.add(1);
-        oscP5.send(myMessage, myRemoteLocationInfoBeamer);
-        println("send play"+uid);
-        println(myMessage);
-        last_send=uid;
-       }
-     }
-     if(uid.trim().equals("94B082CB")){
-
-       if( !uid.equals(last_send) ){
-        OscMessage myMessage = new OscMessage("/photo/start/"+2);
-        //myMessage.add(1);
-        oscP5.send(myMessage, myRemoteLocationInfoBeamer);
-        println("send pause"+uid);
-        println(myMessage);
-        last_send=uid;
-       }
-     }
-          if(uid.trim().equals("24E97BCB")){
-
-       //if( !uid.equals(last_send) ){
-        OscMessage myMessage = new OscMessage("/photo/next/"+1);
-        //myMessage.add(1);
-        oscP5.send(myMessage, myRemoteLocationInfoBeamer);
-        println("send next"+uid);
-        println(myMessage);
-        last_send=uid;
-       //}
-     } */
+    
    }
 
  }
+ 
+ 
 
   void sendOscMessage(String msgToSend, String uid){
 
