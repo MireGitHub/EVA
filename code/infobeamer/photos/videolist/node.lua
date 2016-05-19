@@ -73,7 +73,7 @@ function node.render()
 		print("start 2")
 		video:dispose()
 		video=nil
-		-- START=3
+		START=3
 		-- video = util.videoplayer(playlist[current_video_idx], {loop=false,paused=true,audio=false})
 	end;
 	if START==0 then
@@ -89,5 +89,5 @@ function _render()
     	print("video avviato")  
         next_video()
     end;
-        util.draw_correct(video, 0, 0, WIDTH, HEIGHT)
+        util.draw_correct(video, 0, 0, 3, 3)
 end
