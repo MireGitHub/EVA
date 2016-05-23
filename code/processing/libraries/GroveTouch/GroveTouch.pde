@@ -12,13 +12,17 @@ NetAddress myRemoteLocationInfoBeamer;
 String last_send="------------";
 PFont f; 
 Serial port;
+int ON = 1, OFF = 0;
 
 String buff = "";
 String pin="";
+int gestureCounter = 0;  // No gesture 
+String gestureSeq = "";
+
 String oscMapper = "/photo/";
 int etaRead = -1;
-int START_ON_OFF = 0;
-int TEXT_ON_OFF = 0;
+int START_ON_OFF = OFF;
+int TEXT_ON_OFF = OFF;
 int wait = 2000;
 
 void setup(){
@@ -30,7 +34,8 @@ void setup(){
  oscP5 = new OscP5(this,12000);
  myRemoteLocation = new NetAddress("156.148.72.120",7700);
  myRemoteLocationArena = new NetAddress("156.148.72.120",7000);
- myRemoteLocationInfoBeamer = new NetAddress("156.148.33.113",5555);
+ //myRemoteLocationInfoBeamer = new NetAddress("156.148.33.113",5555);
+ myRemoteLocationInfoBeamer = new NetAddress("192.168.1.102",5555);
  etaRead=millis(); //when the tag is detected
 }
  
@@ -43,7 +48,7 @@ void draw(){
  // check for serial, and process
  while (port.available() > 0) {
    //println("port.read() "+port.read());
-   serialEvent(port.read());
+   serialEvent(port.readChar());
  };
  
  buff="";
@@ -51,65 +56,80 @@ void draw(){
 
 }
 
-void serialEvent(int serial) {
-   buff = "";
-   buff += char(serial);
-   pin = buff; 
-   pin = pin.trim();
-   
-  switch(pin){
-     
-       case("0"):  // PLAY and PAUSE
-             if( millis() - etaRead >= wait ){
-             etaRead = millis();
-            
-                 if( START_ON_OFF == 0) {
-                  sendOscMessage(oscMapper+"start/1", pin);
-                  START_ON_OFF = 1;
-                 }
-                 else {
-                    sendOscMessage(oscMapper+"start/2", pin);
-                    START_ON_OFF = 0;
-                 }
-             }
-             break;
-             
-        case("1"):  // NEXT
-              if( millis() - etaRead >= wait ){
-                 etaRead = millis();
-                 sendOscMessage(oscMapper+"next/1", pin);
-              }
-             break;
-             
-        case("2"):  // TEXT_INFO
-             if( millis() - etaRead >= wait ){
-                 etaRead = millis();
-            
-                 if( TEXT_ON_OFF == 0) {
-                    sendOscMessage(oscMapper+"text_info/1", pin);
-                    TEXT_ON_OFF = 1;
-                 }
-                 else {
-                    sendOscMessage(oscMapper+"text_info/0", pin);
-                    TEXT_ON_OFF = 0;
-                 }
-             }
-             break;
-             
-        case("3"):  // STOP and RESET
-              if( millis() - etaRead >= wait ){
-                 etaRead = millis();
-                 sendOscMessage(oscMapper+"start/0", pin);
-                 
-                 START_ON_OFF = 0;
-                 if(TEXT_ON_OFF == 1){
-                   TEXT_ON_OFF = 0;
-                   sendOscMessage(oscMapper+"text_info/0", pin);
-                 }
-              }
-             break;
-     }
+void serialEvent(char serial) {
   
+  if(resetCmd(serial).equals("RESET_KO")){ //<>//
+    
+     buff = "";
+     buff += serial;
+     pin = buff; 
+     println("PIN:", pin);
+     pin = pin.trim();
+    
+    switch(pin){
+       
+         case("0"):  // PLAY and PAUSE
+               if( millis() - etaRead >= wait ){
+               etaRead = millis();
+              
+                   if( START_ON_OFF == OFF) {
+                    sendOscMessage(oscMapper+"start/1", pin);
+                    START_ON_OFF = ON;
+                   }
+                   else {
+                      sendOscMessage(oscMapper+"start/2", pin);
+                      START_ON_OFF = OFF;
+                   }
+               }
+               break;
+               
+          case("1"):  // NEXT
+                if( millis() - etaRead >= wait ){
+                   etaRead = millis();
+                   sendOscMessage(oscMapper+"next/1", pin);
+                }
+               break;
+               
+          case("2"):  // TEXT_INFO
+               if( millis() - etaRead >= wait ){
+                   etaRead = millis();
+              
+                   if( TEXT_ON_OFF == OFF) {
+                      sendOscMessage(oscMapper+"text_info/1", pin);
+                      TEXT_ON_OFF = ON;
+                   }
+                   else {
+                      sendOscMessage(oscMapper+"text_info/0", pin);
+                      TEXT_ON_OFF = OFF;
+                   }
+               }
+               break;
+               
+          case("3"):  // STOP and RESET
+                if( millis() - etaRead >= wait ){
+                   etaRead = millis();
+                   
+                   playerReset(pin); 
+                   /*sendOscMessage(oscMapper+"start/0", pin);
+                   
+                   START_ON_OFF = OFF;
+                   if(TEXT_ON_OFF == ON){
+                     TEXT_ON_OFF = OFF;
+                     sendOscMessage(oscMapper+"text_info/0", pin);
+                   }
+                   sendOscMessage("/videolist/vds/", pin);  //stop video and audio
+                   */
+                }
+               break;
+               
+          case("L"):  //NEXT
+                   sendOscMessage(oscMapper+"next/1", "SWIPE LEFT");
+               break;
+               
+         default:
+               break;
+       }
+  }  
  }
  
 /*Create and send an osc message to the remote destination
@@ -129,4 +149,52 @@ void oscEvent(OscMessage theOscMessage) {
 /* get and print the address pattern and typetag of the received OscMessage */
 println("### received an osc message with addrpattern "+theOscMessage.addrPattern()+" and typetag" +theOscMessage.typetag());
 theOscMessage.print();
+}
+
+
+
+String resetCmd(char serial){
+   
+    String resetStatus = "RESET_KO"; 
+    
+    if(serial =='R'){ //<>//
+     
+       gestureSeq += serial;
+       gestureCounter++;   // see a right swipe gesture
+     
+       println("Reset seq: ", gestureSeq);
+     
+       if(gestureCounter > 5){  // if there are too many "R" into the buffer
+           gestureCounter = 0;  // reset gesture counter and
+           gestureSeq = "";      // clean the buffer
+       }
+     }  
+   
+   //if you see an "L" after an "R"
+   if(serial == 'L' && gestureCounter >= 1){
+      gestureSeq += serial;
+      //resetCmd = gestureSeq;
+      println("GESTURE SEQUENCE: "+gestureSeq+" --Gest counter:"+gestureCounter);
+    
+      playerReset("RESET_GESTURE");        // send an OSC reset command
+      resetStatus = "RESET_OK";
+      gestureSeq = "";      // clear the sequence string
+      gestureCounter = 0;
+   }
+   
+   return resetStatus;
+}
+
+
+void playerReset(String resetSource){
+  
+   sendOscMessage(oscMapper+"start/0", resetSource);
+                 
+   START_ON_OFF = OFF;
+   if(TEXT_ON_OFF == ON){
+     TEXT_ON_OFF = OFF;
+     sendOscMessage(oscMapper+"text_info/0", resetSource);
+   }
+   sendOscMessage("/videolist/vds/", resetSource);  //stop video and audio
+
 }
