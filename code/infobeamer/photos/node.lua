@@ -63,9 +63,8 @@ util.osc_mapper{
     ["next/(.*)"] = function(arg)
 	local tmp=	pictures.next()
         current_image = resource.load_image(tmp)
-	print(current_image)
-        print(pictures(tmp))
-	
+	print("CURRENT IMAGE: ",current_image)
+        --print("TMP IMAGE: ",pictures(tmp))
     end;
     ["text/(.*)"] = function(arg)
 	TEXT = arg;
@@ -141,6 +140,7 @@ function node.render()
 	end;
 	if START==2 then
 		util.draw_correct(current_image, 0,0,WIDTH,HEIGHT)
+		print("START 2- IMG: "+current_image)
 	end;
 	if TEXT_ON_OFF == 1 then
 		font:write(10, 10, TEXT, 30, 1,1,1,1)
