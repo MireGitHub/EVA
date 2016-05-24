@@ -34,8 +34,8 @@ void setup(){
  oscP5 = new OscP5(this,12000);
  myRemoteLocation = new NetAddress("156.148.72.120",7700);
  myRemoteLocationArena = new NetAddress("156.148.72.120",7000);
- //myRemoteLocationInfoBeamer = new NetAddress("156.148.33.113",5555);
- myRemoteLocationInfoBeamer = new NetAddress("192.168.1.102",5555);
+ myRemoteLocationInfoBeamer = new NetAddress("156.148.33.166",5555);
+ //myRemoteLocationInfoBeamer = new NetAddress("192.168.1.102",5555);
  etaRead=millis(); //when the tag is detected
 }
  
@@ -74,10 +74,12 @@ void serialEvent(char serial) {
               
                    if( START_ON_OFF == OFF) {
                     sendOscMessage(oscMapper+"start/1", pin);
+                    sendOscMessage("/slideshow/start/1", pin);
                     START_ON_OFF = ON;
                    }
                    else {
                       sendOscMessage(oscMapper+"start/2", pin);
+                      sendOscMessage("/slideshow/start/2", pin);
                       START_ON_OFF = OFF;
                    }
                }
@@ -87,6 +89,7 @@ void serialEvent(char serial) {
                 if( millis() - etaRead >= wait ){
                    etaRead = millis();
                    sendOscMessage(oscMapper+"next/1", pin);
+                   sendOscMessage("/slideshow/next/1", pin);
                 }
                break;
                
