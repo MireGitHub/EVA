@@ -82,6 +82,7 @@ void serialEvent(String inBuffer) {
                        break;
                  case("GREEN"):
                        sendOscMessage(oscMapper+"green",colorName);
+                       sendOscMessage(playlistMapper+"2", colorName);
                        lastSend = colorName;  
                        break;
                  case("BLUE"):

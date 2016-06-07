@@ -30,8 +30,8 @@ void setup(){
  f = createFont("Arial",16,true);
  oscP5 = new OscP5(this,12000);
  myRemoteLocation = new NetAddress("156.148.72.120",7700);
- myRemoteLocationArena = new NetAddress("156.148.72.120",7000);
- myRemoteLocationInfoBeamer = new NetAddress("192.168.1.74",5555);
+ //myRemoteLocationArena = new NetAddress("156.148.33.166",7000);
+ myRemoteLocationInfoBeamer = new NetAddress("156.148.33.166",5555);
  etaRead = millis(); //when the tag is detected
 }
 
@@ -113,10 +113,12 @@ void serialEvent(int serial) {
              if( START_ON_OFF == OFF) {
                 //sendOscMessage(playlistMapper+"0", uid);
                 sendOscMessage(oscMapper+"start/1", uid);
+                sendOscMessage("/slideshow/start/1", uid);
                 START_ON_OFF = ON;
                }
              else {
                 sendOscMessage(oscMapper+"start/2", uid);
+                sendOscMessage("/slideshow/start/2", uid);
                 START_ON_OFF = OFF;
                }
              }
@@ -159,6 +161,7 @@ void serialEvent(int serial) {
             if( millis() - etaRead >= wait ){
                  etaRead = millis();
                  sendOscMessage(oscMapper+"next/1", uid);
+                 sendOscMessage("/slideshow/next/1", uid);
               }
              break;
              
