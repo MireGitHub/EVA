@@ -12,6 +12,7 @@ NetAddress myRemoteLocationArena;
 PFont f; 
 Serial port; 
 String oscMapper = "/photo/";
+String playlistMapper = oscMapper+"playlist/";
 String lastSend ="";
 int wRed; 
 int wGreen; 
@@ -19,10 +20,10 @@ int wBlue;
  
 void setup(){
  size(200,200);
- port = new Serial(this, "/dev/ttyACM1", 9600); //remember to replace COM20 with the appropriate serial port on your computer
+ port = new Serial(this, "/dev/ttyACM0", 9600); //remember to replace COM20 with the appropriate serial port on your computer
  f = createFont("Arial",16,true);
  oscP5 = new OscP5(this,12000);
- myRemoteLocation = new NetAddress("192.168.1.167",5555);
+ myRemoteLocation = new NetAddress("156.148.33.166",5555);
  myRemoteLocationArena = new NetAddress("156.148.72.120",7000);
 }
  
@@ -85,6 +86,7 @@ void serialEvent(String inBuffer) {
                        break;
                  case("BLUE"):
                        sendOscMessage(oscMapper+"blue",colorName);
+                       sendOscMessage(playlistMapper+"4", colorName);
                        lastSend = colorName;  
                        break;
                  default:
