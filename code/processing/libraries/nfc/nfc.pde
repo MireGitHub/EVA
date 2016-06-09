@@ -31,7 +31,8 @@ void setup(){
  oscP5 = new OscP5(this,12000);
  myRemoteLocation = new NetAddress("156.148.72.120",7700);
  //myRemoteLocationArena = new NetAddress("156.148.33.166",7000);
- myRemoteLocationInfoBeamer = new NetAddress("156.148.33.166",5555);
+ myRemoteLocationInfoBeamer = new NetAddress("192.168.1.199",5555);   //LAN connection
+ //myRemoteLocationInfoBeamer = new NetAddress("156.148.33.166",5555); //WI-FI connection
  etaRead = millis(); //when the tag is detected
 }
 
@@ -43,10 +44,11 @@ void draw(){
 
  // check for serial, and process
  while (port.available() > 0) {
-   //println("port.read() "+port.read());
    serialEvent(port.read());
+   println("Port read: ",port.read());
  };
  buff="";
+ text("NFC READER",50,30);
  text(uid,10,100);
 
 }
@@ -56,10 +58,8 @@ void serialEvent(int serial) {
    buff += char(serial);
 
    if(buff.indexOf("The_UID:")>-1){
-     //println("buff"+ buff);
      uid=split(buff,"The_UID:")[1];
      uid=split(uid,"**")[0];
-     //println("uid "+uid);
      uid=uid.trim();
      
      switch(uid){

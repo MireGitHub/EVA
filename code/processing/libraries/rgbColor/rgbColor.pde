@@ -17,13 +17,16 @@ String lastSend ="";
 int wRed; 
 int wGreen; 
 int wBlue; 
- 
+String notSpecified = "NO COLOR MATCH";
+
+
 void setup(){
  size(200,200);
- port = new Serial(this, "/dev/ttyACM0", 9600); //remember to replace COM20 with the appropriate serial port on your computer
+ port = new Serial(this, "/dev/ttyACM3", 9600); //remember to replace COM20 with the appropriate serial port on your computer
  f = createFont("Arial",16,true);
  oscP5 = new OscP5(this,12000);
- myRemoteLocation = new NetAddress("156.148.33.166",5555);
+ //myRemoteLocation = new NetAddress("156.148.33.166",5555);   //WI-FI connection
+ myRemoteLocation = new NetAddress("192.168.1.199",5555);      //LAN connection
  myRemoteLocationArena = new NetAddress("156.148.72.120",7000);
 }
  
@@ -37,7 +40,8 @@ background(wRed,wGreen,wBlue);
        delay(1000);
        serialEvent(port.readString());
  };
-  text(wRed+" "+wGreen+" "+wBlue,10,100);
+ text("RGB SENSOR ",50,30);
+ text(wRed+" "+wGreen+" "+wBlue,10,100);
 
   
   /*
@@ -61,9 +65,11 @@ void serialEvent(String inBuffer) {
            wRed=int(list[0]);
            wGreen=int(list[1]);
            wBlue=int(list[2]);
-           println("Color: "+ colorCheck(wRed,wGreen,wBlue) + " Red: "+ wRed+" Green: "+ wGreen+" Blue: "+ wBlue);
+           
            buff="";
            colorName = colorCheck(wRed,wGreen,wBlue);
+           if(!colorName.equals(notSpecified))
+               println("Color: "+ colorCheck(wRed,wGreen,wBlue) + "\tR: "+ wRed+" G: "+ wGreen+" B: "+ wBlue);
            
            if(!colorName.equals(lastSend)){
                switch(colorName){
@@ -133,5 +139,5 @@ String colorCheck(int red, int green, int blue){
   if(red < 70 && green < 100 && blue > 100)
       return "BLUE";
       
-return "NO COLOR MATCH";
+return notSpecified;
 }
