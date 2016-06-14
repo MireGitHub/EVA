@@ -22,11 +22,11 @@ String notSpecified = "NO COLOR MATCH";
 
 void setup(){
  size(200,200);
- port = new Serial(this, "/dev/ttyACM3", 9600); //remember to replace COM20 with the appropriate serial port on your computer
+ port = new Serial(this, "/dev/ttyACM2", 9600); //remember to replace COM20 with the appropriate serial port on your computer
  f = createFont("Arial",16,true);
  oscP5 = new OscP5(this,12000);
  //myRemoteLocation = new NetAddress("156.148.33.166",5555);   //WI-FI connection
- myRemoteLocation = new NetAddress("192.168.1.199",5555);      //LAN connection
+ myRemoteLocation = new NetAddress("192.168.1.106",5555);      //LAN connection
  myRemoteLocationArena = new NetAddress("156.148.72.120",7000);
 }
  
@@ -74,26 +74,39 @@ void serialEvent(String inBuffer) {
            if(!colorName.equals(lastSend)){
                switch(colorName){
                  
-                 case("ORANGE"):
-                       sendOscMessage(oscMapper+"orange",colorName);
-                       lastSend = colorName;  
-                       break;
-                 case("PINK"):
-                       sendOscMessage(oscMapper+"pink",colorName);
+                 case("VIOLET"):
+                       sendOscMessage(oscMapper+"violet",colorName);
+                       sendOscMessage(playlistMapper+"1", colorName);
                        lastSend = colorName;  
                        break;
                  case("RED"):
                        sendOscMessage(oscMapper+"red",colorName);
+                       sendOscMessage(playlistMapper+"2", colorName);
                        lastSend = colorName;  
                        break;
-                 case("GREEN"):
-                       sendOscMessage(oscMapper+"green",colorName);
-                       sendOscMessage(playlistMapper+"2", colorName);
+                case("OCRA"):
+                       sendOscMessage(oscMapper+"ocra",colorName);
+                       sendOscMessage(playlistMapper+"3", colorName);
                        lastSend = colorName;  
                        break;
                  case("BLUE"):
                        sendOscMessage(oscMapper+"blue",colorName);
                        sendOscMessage(playlistMapper+"4", colorName);
+                       lastSend = colorName;  
+                       break;
+                 case("ORANGE"):
+                       sendOscMessage(oscMapper+"orange",colorName);
+                       sendOscMessage(playlistMapper+"5", colorName);
+                       lastSend = colorName;  
+                       break;
+                 case("PINK"):
+                       sendOscMessage(oscMapper+"pink",colorName);
+                       sendOscMessage(playlistMapper+"6", colorName);
+                       lastSend = colorName;  
+                       break;
+                 case("GREEN"):
+                       sendOscMessage(oscMapper+"green",colorName);
+                       sendOscMessage(playlistMapper+"7", colorName);
                        lastSend = colorName;  
                        break;
                  default:
@@ -138,6 +151,10 @@ String colorCheck(int red, int green, int blue){
       return "GREEN";
   if(red < 70 && green < 100 && blue > 100)
       return "BLUE";
+  if(red > 130 && green > 80 && blue > 40)
+      return "OCRA";
+  if(red > 120 && green < 50 && blue >= 70)
+      return "VIOLET";
       
 return notSpecified;
 }

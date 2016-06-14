@@ -26,12 +26,12 @@ int VIDEO_ON_OFF = 0;
 void setup(){
   
  size(200,200);
- port = new Serial(this, "/dev/ttyACM0", 115200); //remember to replace COM20 with the appropriate serial port on your computer
+ port = new Serial(this, "/dev/ttyACM1", 115200); //remember to replace COM20 with the appropriate serial port on your computer
  f = createFont("Arial",16,true);
  oscP5 = new OscP5(this,12000);
  myRemoteLocation = new NetAddress("156.148.72.120",7700);
  //myRemoteLocationArena = new NetAddress("156.148.33.166",7000);
- myRemoteLocationInfoBeamer = new NetAddress("192.168.1.199",5555);   //LAN connection
+ myRemoteLocationInfoBeamer = new NetAddress("192.168.1.106",5555);   //LAN connection
  //myRemoteLocationInfoBeamer = new NetAddress("156.148.33.166",5555); //WI-FI connection
  etaRead = millis(); //when the tag is detected
 }
@@ -45,7 +45,7 @@ void draw(){
  // check for serial, and process
  while (port.available() > 0) {
    serialEvent(port.read());
-   println("Port read: ",port.read());
+   //println("Port read: ",port.read());
  };
  buff="";
  text("NFC READER",50,30);
@@ -105,7 +105,14 @@ void serialEvent(int serial) {
             sendOscMessage(playlistMapper+"6", uid);
          }
          break;
-
+         
+       case("F41E82CB"):     //PLAYLIST 7
+         if(millis() - etaRead >= wait){
+            etaRead = millis();
+            sendOscMessage(playlistMapper+"7", uid);
+         }
+         break;
+         
         case("845B82CB"):       //PLAY and PAUSE
              if( millis() - etaRead >= wait ){
              etaRead = millis();
@@ -113,12 +120,12 @@ void serialEvent(int serial) {
              if( START_ON_OFF == OFF) {
                 //sendOscMessage(playlistMapper+"0", uid);
                 sendOscMessage(oscMapper+"start/1", uid);
-                sendOscMessage("/slideshow/start/1", uid);
+                //sendOscMessage("/slideshow/start/1", uid);
                 START_ON_OFF = ON;
                }
              else {
                 sendOscMessage(oscMapper+"start/2", uid);
-                sendOscMessage("/slideshow/start/2", uid);
+                //sendOscMessage("/slideshow/start/2", uid);
                 START_ON_OFF = OFF;
                }
              }
@@ -161,7 +168,7 @@ void serialEvent(int serial) {
             if( millis() - etaRead >= wait ){
                  etaRead = millis();
                  sendOscMessage(oscMapper+"next/1", uid);
-                 sendOscMessage("/slideshow/next/1", uid);
+                 //sendOscMessage("/slideshow/next/1", uid);
               }
              break;
              
@@ -182,7 +189,7 @@ void serialEvent(int serial) {
              }
              break;      
        default:             // Default executes if the case labels
-              println("Waiting to read...");   // don't match the switch parameter
+              //println("Waiting to read...");   // don't match the switch parameter
               break;
      }
 

@@ -30,12 +30,12 @@ void setup(){
   
  size(200,200);
  //println(Serial.list());
- port = new Serial(this, "/dev/ttyACM2", 9600); //remember to replace COM20 with the appropriate serial port on your computer
+ port = new Serial(this, "/dev/ttyACM0", 9600); //remember to replace COM20 with the appropriate serial port on your computer
  f = createFont("Arial",16,true);
  oscP5 = new OscP5(this,12000);
  myRemoteLocation = new NetAddress("156.148.72.120",7700);
  myRemoteLocationArena = new NetAddress("156.148.72.120",7000);
- myRemoteLocationInfoBeamer = new NetAddress("192.168.1.199",5555);  //LAN connection 
+ myRemoteLocationInfoBeamer = new NetAddress("192.168.1.106",5555);  //LAN connection 
  //myRemoteLocationInfoBeamer = new NetAddress("156.148.33.166",5555);  //WI-FI connection
 
  etaRead=millis(); //when the tag is detected
@@ -77,12 +77,12 @@ void serialEvent(char serial) {
               
                    if( START_ON_OFF == OFF) {
                     sendOscMessage(oscMapper+"start/1", pin);
-                    sendOscMessage(oscChildMapper+"start/1", pin);
+                    //sendOscMessage(oscChildMapper+"start/1", pin);
                     START_ON_OFF = ON;
                    }
                    else {
                       sendOscMessage(oscMapper+"start/2", pin);
-                      sendOscMessage(oscChildMapper+"start/2", pin);
+                      //sendOscMessage(oscChildMapper+"start/2", pin);
                       START_ON_OFF = OFF;
                    }
                }
@@ -92,7 +92,7 @@ void serialEvent(char serial) {
                 if( millis() - etaRead >= wait ){
                    etaRead = millis();
                    sendOscMessage(oscMapper+"next/1", pin);
-                   sendOscMessage(oscChildMapper+"next/1", pin);
+                   //sendOscMessage(oscChildMapper+"next/1", pin);
                 }
                break;
                
@@ -101,11 +101,11 @@ void serialEvent(char serial) {
                    etaRead = millis();
               
                    if( TEXT_ON_OFF == OFF) {
-                      sendOscMessage(oscMapper+"text_info/1", pin);
+                      sendOscMessage(oscMapper+"text_file/1", pin);
                       TEXT_ON_OFF = ON;
                    }
                    else {
-                      sendOscMessage(oscMapper+"text_info/0", pin);
+                      sendOscMessage(oscMapper+"text_file/0", pin);
                       TEXT_ON_OFF = OFF;
                    }
                }
@@ -193,15 +193,15 @@ String resetCmd(char serial){
 
 
 void playerReset(String resetSource){
-  
+  sendOscMessage(oscMapper+"start/2", resetSource);  
    sendOscMessage(oscMapper+"start/0", resetSource);
-   sendOscMessage(oscChildMapper+"start/0", resetSource);              
+   //sendOscMessage(oscChildMapper+"start/0", resetSource);              
    START_ON_OFF = OFF;
    if(TEXT_ON_OFF == ON){
      TEXT_ON_OFF = OFF;
-     sendOscMessage(oscMapper+"text_info/0", resetSource);
+     sendOscMessage(oscMapper+"text_file/0", resetSource);
    }
-   sendOscMessage(oscMapper+"video/2", resetSource);
+   //sendOscMessage(oscMapper+"video/2", resetSource);
    sendOscMessage("/videolist/vds/2", resetSource);  //stop video and audio
 
 }
