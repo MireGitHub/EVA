@@ -3,7 +3,7 @@ gl.setup(1920, 1080)
 util.auto_loader(_G)
 
 function feeder()
-    return {"Playlist 2", "Tema 2"}
+    return {"Chagall", "Vitebsk 1887 - Saint Paul de Vence 1985"}
 end
 
 text = util.running_text{

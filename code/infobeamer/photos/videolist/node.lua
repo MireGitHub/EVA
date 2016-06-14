@@ -13,7 +13,7 @@ util.file_watch("playlist.txt", function(content)
         playlist[#playlist+1] = filename
     end
     current_video_idx = 0
-    print("new playlist")
+    print("Videolist READ playlist video")
     pp(playlist)
 end)
 
@@ -28,11 +28,11 @@ function next_video()
     video = util.videoplayer(playlist[current_video_idx], {loop=false,paused=false,audio=true})
 end
 
-function prova(vari)
-	print("prova chiamata dal padre")
-	START=1
-	return "retrurn"
-end
+--function prova(vari)
+	--print("prova chiamata dal padre")
+	--START=1
+	--return "retrurn"
+--end
 
 util.osc_mapper{
     -- start==0 non ancora avviato pausa
@@ -40,8 +40,7 @@ util.osc_mapper{
     -- start==2 stop	
     ["vds/(.*)"] = function(arg)	
         START=tonumber(arg)
-	print(START)
-	print("mapper")
+	print("Videolist mapper\tStart value: ", START)
     end;
     ["speed/(.*)"] = function(arg)	
         COUNTDOWN= tonumber(arg)
@@ -67,16 +66,23 @@ util.osc_mapper{
 function node.render()
 
 	if START==1 then
-		_render()
+		--_render()
+		 video = util.videoplayer(playlist[1], {loop=false,paused=false,audio=true})
+		video:start()
+		START=3
+		print("Videolist render\tvideo avviato ", START) 
+		
 	end;
 	if START==2 then
-		print("start 2")
+		--video:stop()
+		print("Videolist render\tSTOP VIDEO/AUDIO\tstart 2")
 		video:dispose()
-		video=nil
+		--video=nil
 		START=3
 		-- video = util.videoplayer(playlist[current_video_idx], {loop=false,paused=true,audio=false})
 	end;
 	if START==0 then
+		video:dispose()
 	    -- video:draw(0, 0, WIDTH, HEIGHT)	
 	    -- video:start()
             -- util.draw_correct(video, 0, 0, WIDTH, HEIGHT)
@@ -86,7 +92,7 @@ function node.render()
 end
 function _render()
     if not video or not video:next() then
-    	print("video avviato")  
+    	print("Videolist\tvideo avviato ", START)  
         next_video()
     end;
         util.draw_correct(video, 0, 0, 3, 3)

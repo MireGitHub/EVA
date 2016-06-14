@@ -1,7 +1,6 @@
 -- photo
-
-local COUNTDOWN = 3
 node.alias("photo")
+local COUNTDOWN = 3
 START = 0
 local font = resource.load_font "silkscreen.ttf"
 TEXT_ON_OFF = 0
@@ -10,10 +9,11 @@ TEXTINFO_ON_OFF = 0
 VIDEO_ON_OFF = 0
 OPACITY = 1
 playlist_id=0
-logo = "Dali_5.jpg"
 tmp_pictures={}
-gl.setup(NATIVE_WIDTH, NATIVE_HEIGHT)
 child = 0
+
+gl.setup(NATIVE_WIDTH, NATIVE_HEIGHT)
+
 
 pictures = util.generator(function()
     local out = {}
@@ -24,11 +24,10 @@ pictures = util.generator(function()
     end
     return out
 end)
-
--- print("pictures ",pictures)
 node.event("content_remove", function(filename)
     pictures:remove(filename)
 end)
+
 
 local out_effect = math.random() * 3
 local in_effect = math.random() * 3
@@ -40,7 +39,7 @@ local next_image_time = sys.now() + COUNTDOWN
 
 util.osc_mapper{
     ["start/(.*)"] = function(arg)
-	print('Play' , arg)	
+	print('Photos mapper start \tARG value' , arg)	
         START= tonumber(arg)
 	if START==0 then
 	  TEXT_FILE = 0
@@ -74,7 +73,7 @@ util.osc_mapper{
 	-- print("text no render "+TEXT)
     end;
    ["text_file/(.*)"] = function(arg)
-       print("Read from file ")
+       print("Read from file P0")
        TEXT_FILE = tonumber(arg);
 	
     end;
@@ -89,6 +88,7 @@ util.osc_mapper{
     end;
    ["video/(.*)"] = function(arg)
 	VIDEO_ON_OFF = tonumber(arg);
+	print("Photos video mapper\tARG value: " +arg+" VIDEO_ON_OFF ",VIDEO_ON_OFF)
     end;
     ["playlist/(.*)"] = function(arg)
 
@@ -122,85 +122,48 @@ util.osc_mapper{
 }
 
 
-util.auto_loader(_G)
-
-function feeder()
-    return {"A Text", "Another Text"}
-end
-
-text_info = util.running_text{
-    font = silkscreen;
-    size = 260;
-    speed = 240;
-    color = {1,1,1,1};
-    generator = util.generator(feeder)
-}
-
-
 function node.render()
 	
 	if START==0 then
-		util.draw_correct(logo, 0,0,WIDTH,HEIGHT)
-		gl.clear(0,0,0,1)  
+		gl.clear(250,0,0,1)
+		current_image:dispose()	
 	end;	
 	if START==1 then
-		_render()
+		_render2()
 	end;
 	if START==2 then
-		if playlist_id==0 then
-			util.draw_correct(current_image, 0,0,WIDTH,HEIGHT)
-			print("START 2- IMG: "+current_image)
-		else
-			child = resource.render_child(playlist_id)
-			child:draw(0, 0, WIDTH,HEIGHT) 
-     
-		end;
+		util.draw_correct(current_image, 0,0,WIDTH,HEIGHT)
+		
+		--if playlist_id==0 then
+			--util.draw_correct(current_image, 0,0,WIDTH,HEIGHT)
+			--print("START 2- IMG: "+current_image)
+		--else
+			--child = resource.render_child(playlist_id)
+			--child:draw(0, 0, WIDTH,HEIGHT) 
+			--print("PAUSE ON ID: ", playlist_id)
+			--resource.render_child(playlist_id):draw(0, 0, WIDTH,HEIGHT) 
+		--end;
 	end;
 	if TEXT_ON_OFF == 1 then
-		font:write(10, 10, TEXT, 30, 1,1,1,1)
-		-- print("text "+TEXT)	
+		font:write(10, 10, TEXT, 30, 1,1,1,1)	
 	end;
 	if TEXTINFO_ON_OFF == 1 then
 		text_info:draw(HEIGHT-260)
 	end;
 	if VIDEO_ON_OFF == 1 then
 		resource.render_child("videolist"):draw(0, 0, WIDTH,HEIGHT, OPACITY) 
-	
-	end;	  
-	if TEXT_FILE == 1 then
-	    -- folder = tostring(playlist_id)
-	    -- folder_id = split(folder, ".")		
+	end;	
+	if TEXT_FILE == 1 then		
             resource.render_child("text-file-"..tostring(playlist_id)):draw(0, 0, WIDTH,HEIGHT, OPACITY) 
-	end;	       
+	end;		
 end
 
--- function split(str, sep)
---  local result = {}
--- local regex = ("([.txt]+)"):format(sep)
--- for each in str:gmatch(regex) do
--- table.insert(result, each)
--- end
--- return result
--- end
 
--- local lines = split(content, ".")
---for _,line in ipairs(lines) do
-	-- print(lines)
--- end
 
 function _render()
    gl.clear(0,0,0,1)   
     
-    -- gl.perspective(60,
-    --    WIDTH/2, HEIGHT/2, -WIDTH/1.6,
-    --    -- WIDTH/2, HEIGHT/2, -WIDTH/1.4,
-    --    WIDTH/2, HEIGHT/2, 0
-    -- )
-    -- gl.perspective(60,
-    --    WIDTH/2+math.cos(sys.now()) * 100, HEIGHT/2+math.sin(sys.now()) * 100, -WIDTH/1.9,
-    --    -- WIDTH/2, HEIGHT/2, -WIDTH/1.4,
-    --    WIDTH/2, HEIGHT/2, 0
-    -- )
+
    if playlist_id == 0 then
 	  
 	    local time_to_next = next_image_time - sys.now()
@@ -211,8 +174,6 @@ function _render()
 		    next_image = nil
 		    next_image_time = sys.now() + COUNTDOWN
 		    util.draw_correct(current_image, 0,0,WIDTH,HEIGHT)
-		    -- in_effect = math.random() * 3
-		    -- out_effect = math.random() * 3
 		else
 		    next_image_time = sys.now() + COUNTDOWN
 		end
@@ -226,18 +187,57 @@ function _render()
 		util.draw_correct(current_image, 0,0,WIDTH,HEIGHT)
 	    end
    else
-        if child ~=playlist_id then 
+       --if child ~=playlist_id then 
 	  
-	  if child >0 then
-	    resource.render_child(child):dispose()
+	  --if child >0 then
+	   -- resource.render_child(child):dispose()
 	   
-	   end  
+	   --end  
 	   
-	   child =playlist_id
-	end
-	-- child = resource.render_child(playlist_id)
+	  -- child =playlist_id
+	--end
+	--child = resource.render_child(playlist_id)
 	--print("Child START 1: " , child)
-	-- child:draw(0, 0, WIDTH,HEIGHT) 
+	--child:draw(0, 0, WIDTH,HEIGHT) 
 	resource.render_child(playlist_id):draw(0, 0, WIDTH,HEIGHT) 
      end
 end
+
+
+
+
+function _render2()
+gl.clear(0,0,0,1)  
+  
+	--if playlist_id == 0 then
+	  
+	    local time_to_next = next_image_time - sys.now()
+	    
+	    if time_to_next < 0 then
+	    
+		if next_image then
+			current_image:dispose()
+			current_image = next_image
+			next_image = nil
+			next_image_time = sys.now() + COUNTDOWN
+			util.draw_correct(current_image, 0,0,WIDTH,HEIGHT)
+		else
+			next_image_time = sys.now() + COUNTDOWN
+		end
+		util.draw_correct(current_image, 0,0,WIDTH,HEIGHT)
+		
+	    elseif time_to_next < 1 then
+	    
+		if not next_image then
+		    next_image = resource.load_image(pictures.next())
+		end
+		local xoff = (1 - time_to_next) * WIDTH
+		
+	    else
+		util.draw_correct(current_image, 0,0,WIDTH,HEIGHT)
+	   end
+	--else
+	--resource.render_child(playlist_id):draw(0, 0, WIDTH,HEIGHT) 
+    --end
+end
+
