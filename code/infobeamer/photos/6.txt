@@ -2,5 +2,3 @@ Miro_1.jpg
 Miro_2.jpg
 Miro_3.jpg
 Miro_4.jpg
-Miro_5.jpg
-Miro_6.jpg
