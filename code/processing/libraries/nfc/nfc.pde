@@ -31,7 +31,7 @@ void setup(){
  oscP5 = new OscP5(this,12000);
  myRemoteLocation = new NetAddress("156.148.72.120",7700);
  //myRemoteLocationArena = new NetAddress("156.148.33.166",7000);
- myRemoteLocationInfoBeamer = new NetAddress("192.168.1.106",5555);   //LAN connection
+ myRemoteLocationInfoBeamer = new NetAddress("127.0.0.1",5555);   //LAN connection
  //myRemoteLocationInfoBeamer = new NetAddress("156.148.33.166",5555); //WI-FI connection
  etaRead = millis(); //when the tag is detected
 }

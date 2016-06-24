@@ -22,11 +22,11 @@ String notSpecified = "NO COLOR MATCH";
 
 void setup(){
  size(200,200);
- port = new Serial(this, "/dev/ttyACM2", 9600); //remember to replace COM20 with the appropriate serial port on your computer
+ port = new Serial(this, "/dev/ttyACM0", 9600); //remember to replace COM20 with the appropriate serial port on your computer
  f = createFont("Arial",16,true);
  oscP5 = new OscP5(this,12000);
  //myRemoteLocation = new NetAddress("156.148.33.166",5555);   //WI-FI connection
- myRemoteLocation = new NetAddress("192.168.1.106",5555);      //LAN connection
+ myRemoteLocation = new NetAddress("127.0.0.1",5555);      //LAN connection
  myRemoteLocationArena = new NetAddress("156.148.72.120",7000);
 }
  
@@ -66,12 +66,14 @@ void serialEvent(String inBuffer) {
            wGreen=int(list[1]);
            wBlue=int(list[2]);
            
+           sendOscMessageArena(wRed+":"+ wGreen+":"+ wBlue);
+           
            buff="";
            colorName = colorCheck(wRed,wGreen,wBlue);
            if(!colorName.equals(notSpecified))
                println("Color: "+ colorCheck(wRed,wGreen,wBlue) + "\tR: "+ wRed+" G: "+ wGreen+" B: "+ wBlue);
            
-           if(!colorName.equals(lastSend)){
+          if(!colorName.equals(lastSend)){
                switch(colorName){
                  
                  case("VIOLET"):
@@ -136,6 +138,12 @@ println("### received an osc message with addrpattern "+theOscMessage.addrPatter
 theOscMessage.print();
 }
 
+void sendOscMessageArena(String msgToSend){
+  OscMessage myMessage = new OscMessage(msgToSend);
+  oscP5.send(myMessage, myRemoteLocationArena);
+  oscEvent(myMessage);
+  //println("COLOR: "+rgbColor+" -- OSC message: "+myMessage);
+}
 
 String colorCheck(int red, int green, int blue){
   
